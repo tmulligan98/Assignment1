@@ -47,14 +47,58 @@ void displayImages(Mat image_array[]) {
 
 }
 
-void displayRchannel(Mat image_array[]) {
+void displayRedHue(Mat image_array[]) {
 
-	vector<Mat> input_planes(3);
+	Mat hls_image;
+	int index = 0;
+	char c;
+	Mat mask1, mask2, combined;
 
-	Mat Rdisplay;
+	while (index < ARRAYSIZE) {
 
-	cvtColor(input_planes[2], Rdisplay, COLOR_GRAY2BGR);
-	//Plane 2 is the red plane. So it's just extracted and put into Rdisplay.
+		cvtColor(image_array[index], hls_image, COLOR_BGR2HLS);
+
+		
+		inRange(hls_image, Scalar(0, 70, 50), Scalar(10, 255, 255), mask1);
+		inRange(hls_image, Scalar(170, 70, 50), Scalar(180, 255, 255), mask2);
+		//Since the red hue wraps around, we take two masks and combine them.
+
+		combined = mask1 | mask2;
+
+		imshow("Red Hue", combined);
+
+		c = cv::waitKey();
+		cv::destroyAllWindows();
+		if (c == 'x')
+			break;
+		index++;
+	}
+
+}
+
+
+void CalculateHueHistogram(Mat image_array[]) {
+
+	char c;
+	Mat hls_image;
+	cvtColor(image_array[2], hls_image, COLOR_BGR2HLS);
+
+	MatND* histogram = new MatND[hls_image.channels()];
+	vector<Mat> channels(hls_image.channels());
+	
+	const int* channel_numbers = { 0 };
+	float channel_range[] = { 0.0, 360.0 };
+	const float * channel_ranges = channel_range;
+
+	int num_bins = 64;
+
+	
+	calcHist(&(channels[0]), 1, channel_numbers, Mat(), histogram[0], 1, &num_bins, &channel_ranges);
+	
+
+	c = cv::waitKey();
+	cv::destroyAllWindows();
+	
 
 
 }
@@ -123,6 +167,11 @@ int main(int argc, const char** argv) {
 			case '1':
 				displayImages(image_arr);
 				break;
+			case '2':
+				displayRedHue(image_arr);
+				break;
+			case '3':
+				CalculateHueHistogramr(image_arr);
 			default:
 				break;
 
@@ -138,15 +187,15 @@ int main(int argc, const char** argv) {
 
 	
 
-	//Display images and handle SPACEBAR input to cycle through images
 
 
-	//Display the red channels of the image
+
+
 
 
 	
 
-
+	//Display Red and Hue Histogram
 	//For each image, print out the number of spoons present.
 
 
