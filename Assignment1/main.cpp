@@ -28,6 +28,37 @@
 #define TEST17 19
 #define TEST18 20
 
+#define ARRAYSIZE 18
+
+void displayImages(Mat image_array[]) {
+
+	int index = 0;
+	char c;
+	
+
+	while (index < ARRAYSIZE) {
+		Mat image = image_array[index];
+		imshow("Image", image);
+		c = cv::waitKey();
+		cv::destroyAllWindows();
+		index++;
+
+	}
+
+}
+
+void displayRchannel(Mat image_array[]) {
+
+	vector<Mat> input_planes(3);
+
+	Mat Rdisplay;
+
+	cvtColor(input_planes[2], Rdisplay, COLOR_GRAY2BGR);
+	//Plane 2 is the red plane. So it's just extracted and put into Rdisplay.
+
+
+}
+
 
 int main(int argc, const char** argv) {
 
@@ -71,16 +102,49 @@ int main(int argc, const char** argv) {
 		}
 			
 	}
+
+	cout << "Press 1 to cycle through images." << endl;
+	cout << "Press x to exit." << endl;
+
+	int user_in;
 	
-};
+
+	Mat image = image_arr[10];
+	
+
+	do {
+
+		imshow("Image", image);
+		user_in = cv::waitKey();
+		cv::destroyAllWindows();
+		
+
+		switch (user_in) {
+			case '1':
+				displayImages(image_arr);
+				break;
+			default:
+				break;
+
+		}
+		
+	
+	} while (user_in != 'x');
+
+
+	cout << "Done." << endl;
+}
 
 
 	
+
+	//Display images and handle SPACEBAR input to cycle through images
+
 
 	//Display the red channels of the image
 
 
-	//Display images and handle SPACEBAR input to cycle through images
+	
 
 
 	//For each image, print out the number of spoons present.
