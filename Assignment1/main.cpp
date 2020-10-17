@@ -81,27 +81,77 @@ void CalculateHueHistogram(Mat image_array[]) {
 
 	char c;
 	Mat hls_image;
-	cvtColor(image_array[2], hls_image, COLOR_BGR2HLS);
 
-	MatND* histogram = new MatND[hls_image.channels()];
-	vector<Mat> channels(hls_image.channels());
+	Mat mask1, mask2, combined;
 	
+
+	int index = 0;
+
+	vector<Mat> hls_planes(3);
+	
+
+
+	int sum = 0;
+
+	while (index < ARRAYSIZE) {
+		cvtColor(image_array[index], hls_image, COLOR_BGR2HLS);
+
+		inRange(hls_image, Scalar(0, 70, 50), Scalar(30, 255, 255), mask1);
+		inRange(hls_image, Scalar(150, 70, 50), Scalar(180, 255, 255), mask2);
+		//Since the red hue wraps around, we take two masks and combine them.
+
+		combined = mask1 | mask2;
+
+		split(hls_image, hls_planes);
+
+
+		for (int y = 0; y < hls_image.rows; y++)
+			for (int x = 0; x < hls_image.cols; x++) {
+				if (hls_planes[0].at<uchar>(y, x) > 180) cout << "Hey wait a minute..." << endl;
+				if (hls_planes[0].at<uchar>(y, x) < 30 || (hls_planes[0].at<uchar>(y, x) > 150 && hls_planes[0].at<uchar>(y, x) < 180))
+					sum++;
+			}
+				
+
+		cout << sum << endl;
+
+		sum = 0;
+
+		c = cv::waitKey();
+		cv::destroyAllWindows();
+		if (c == 'x')
+			break;
+		index++;
+	}
+
+}
+
+void backProject(Mat imagearray[]) {
+
+	//Histogram the image
+	
+	//Backproject this
+
+	MatND* histogram = new MatND[imagearray[1].channels()];
+	vector<Mat> channels(imagearray[1].channels());
+	
+	split(imagearray[1], channels);
 	const int* channel_numbers = { 0 };
-	float channel_range[] = { 0.0, 360.0 };
-	const float * channel_ranges = channel_range;
+	float channel_range[] = { 0.0, 255.0 };
 
-	int num_bins = 64;
+	const float* channel_ranges = channel_range;
+	int number_bins = 64;
+	
+	for (int chan = 0; chan < imagearray[1].channels(); chan++)
+		calcHist(&(channels[chan]), 1, channel_numbers, Mat(), histogram[chan], 1, &number_bins, &channel_ranges);
 
-	
-	calcHist(&(channels[0]), 1, channel_numbers, Mat(), histogram[0], 1, &num_bins, &channel_ranges);
-	
 
-	c = cv::waitKey();
-	cv::destroyAllWindows();
-	
+	//Threshold image to isolate spoon RGB values
+
 
 
 }
+
 
 
 int main(int argc, const char** argv) {
@@ -171,7 +221,7 @@ int main(int argc, const char** argv) {
 				displayRedHue(image_arr);
 				break;
 			case '3':
-				CalculateHueHistogramr(image_arr);
+				CalculateHueHistogram(image_arr);
 			default:
 				break;
 
